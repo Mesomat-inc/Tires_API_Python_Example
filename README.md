@@ -50,7 +50,12 @@ API_BASE_URL = 'https://driverapp.eastus.cloudapp.azure.com/
 
 To use this project, follow these steps:
 
-1. **Run the Authentication Script**
+1. **Navigate to the api_scripts module**
+    ```bash
+    cd src\api_scripts\
+    ```
+
+2. **Run the Authentication Script**
 
     First, you need to run the `authentication.py` script to update the access and refresh token environment variables. Execute the following command:
 
@@ -58,7 +63,7 @@ To use this project, follow these steps:
     python authentication.py
     ```
 
-2. **Call the API Script**
+3. **Call the API Script**
 
     After updating the tokens, you can call the `api_call.py` script. The specific function that will be executed is the one specified in the `__name__ == "__main__"` section of the code. Run the script with:
 
