@@ -39,11 +39,14 @@ Example `.env` file:
 
 ```
 USER_EMAIL = 'john.doe@domain.com'
-ACCESS_TOKEN = 'my_access_token'
-REFRESH_TOKEN = 'my_refresh_token',
 PASSWORD = 'my_password',
 API_BASE_URL = 'https://driverapp.eastus.cloudapp.azure.com/
 ```
+
+Access token and refresh token will automatically be added to the .env file upon first authentication.
+These variables can also be entered manually in the .env if known. If the refresh token is expired or invalid,
+the user will be notified. In this case, it is recommended to clear the value of both token which will force the
+client to authenticate and regenerate the tokens.
 
 ## Usage
 
@@ -55,20 +58,27 @@ To use this project, follow these steps:
     cd src\api_scripts\
     ```
 
-2. **Run the Authentication Script**
+2. **APIClient Class**
 
-    First, you need to run the `authentication.py` script to update the access and refresh token environment variables. Execute the following command:
-
-    ```bash
-    python authentication.py
-    ```
+    All methods to interact with the API are stored in the APIClient Class, including authnetication methods.
+    Each route documented in https://driverapp.eastus.cloudapp.azure.com/docs#/ has a corresponding method in the
+    APIClient class.
 
 3. **Call the API Script**
 
-    After updating the tokens, you can call the `api_call.py` script. The specific function that will be executed is the one specified in the `__name__ == "__main__"` section of the code. Run the script with:
+    The API should be called using `src\api_scripts\main.py`. The code in the main function can be modified to 
+    call one of the methods available in the APIClient class. For example:
 
     ```bash
-    python api_call.py
+    # Create an instance of the APIClient
+    api_client = APIClient(
+        email=os.getenv("USER_EMAIL"),
+        password=os.getenv("PASSWORD")
+    )
+    
+    # Make a request to the API
+    response = api_client.get_gps_by_vehicle(153, start_time= "2024-09-10T15:30:00", end_time= "2024-09-10T15:40:00", undersampling_factor=1)
+    print(response)
     ```
 
 
