@@ -80,6 +80,12 @@ class APIClient:
             self.access_token = token.json()["access_token"]
             self.refresh_token = token.json()["refresh_token"]
 
+            # update the access token in the .env file
+            update_dotenv_key("ACCESS_TOKEN", self.access_token)
+
+            # reload the .env file
+            load_dotenv(override=True)
+
             return {
                 "access_token": token.json()["access_token"],
             }
