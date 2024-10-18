@@ -113,7 +113,15 @@ class APIClient:
             response = requests.get(endpoint, headers=headers)
 
         # Handle other potential errors or raise if failed
-        response.raise_for_status()
+        if response.status_code == 404:
+            print(f'Could not find the requested resource: {response.json()["detail"]}')
+            return None
+        elif response.status_code == 401:
+            raise requests.exceptions.HTTPError(
+                f"{response.status_code} Client Error: {response.json()['detail']}"
+            )
+        else:     
+            response.raise_for_status()
         
         return response.json()
 
