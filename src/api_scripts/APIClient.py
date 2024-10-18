@@ -4,7 +4,12 @@ import json
 import pandas as pd
 from dotenv import load_dotenv
 
-from utils import is_iso_8601, update_dotenv_key, convert_sensor_data_to_dataframe, convert_gps_to_dataframe
+from utils import (
+    is_iso_8601,
+    update_dotenv_key,
+    convert_sensor_data_to_dataframe,
+    convert_gps_to_dataframe,
+)
 
 load_dotenv(override=True)
 
@@ -24,13 +29,12 @@ class APIClient:
             self._authenticate()
 
     def _authenticate(self):
-        '''
+        """
         Authenticate the user using the email and password in .env file
-        '''
+        """
 
         url_token = BASE_URL + "/auth/token"
 
-        
         params = {"email": self.email, "password": self.password}
 
         token = requests.post(url_token, params=params)
@@ -40,7 +44,7 @@ class APIClient:
             self.access_token = token.json()["access_token"]
             self.refresh_token = token.json()["refresh_token"]
             print("Authentication successful")
-            
+
             # update the refresh token in the .env file
             update_dotenv_key("REFRESH_TOKEN", self.refresh_token)
 
@@ -56,11 +60,11 @@ class APIClient:
 
     def format_header(self):
         return {"token": self.access_token}
-    
+
     def refresh_access_token(self):
-        ''' 
+        """
         Refresh the access token using the refresh token in the .env file
-        '''
+        """
 
         url_token = BASE_URL + "/auth/refresh-token"
 
@@ -74,7 +78,7 @@ class APIClient:
         except Exception as e:
             print(f"Failed to refresh token: {e}")
             return None
-        
+
         if token:
 
             self.access_token = token.json()["access_token"]
@@ -91,28 +95,28 @@ class APIClient:
             }
 
     def api_request(self, endpoint, params=None):
-        '''
+        """
         Make a request to the API endpoint, if the request fails due to an expired token,
         the access token will be refreshed and the request will be retried.
 
         params is optional and can be used to pass query parameters to the request
-        '''
+        """
 
         headers = self.format_header()
-        
+
         response = requests.get(endpoint, headers=headers, params=params)
         if response.status_code == 401:  # Unauthorized
             print("Token expired, refreshing...")
             self.refresh_access_token()
-            
+
             # Retry with new token
             headers = self.format_header()
             response = requests.get(endpoint, headers=headers)
-        
+
         # Handle other potential errors or raise if failed
         response.raise_for_status()
         return response.json()
-    
+
     def get_vehicle_list(self) -> list[dict]:
         """
         Get the list of vehicles with their information
@@ -121,12 +125,11 @@ class APIClient:
         # create the url for the request, refer to the API documentation for the correct endpoint
         url = FLEET_URL + "vehicles"
 
-        
         # make the request
         response = self.api_request(url)
 
         return response
-    
+
     def get_vehicle_info(self, vehicle_id) -> dict:
         """
         Get the information of a specific vehicle
@@ -140,7 +143,6 @@ class APIClient:
         response = self.api_request(url)
 
         return response
-
 
     def get_sensors_attached_to_vehicle(self, vehicle_id) -> list[dict]:
         """
@@ -156,9 +158,8 @@ class APIClient:
 
         return response
 
-
-    def get_sensor_data_by_vehicle(self,
-        vehicle_id, start_time, end_time=None
+    def get_sensor_data_by_vehicle(
+        self, vehicle_id, start_time, end_time=None
     ) -> pd.DataFrame:
         """
         Get the data of a all sensors attached to a vehicle, note the maximum number of
@@ -183,14 +184,13 @@ class APIClient:
         response = self.api_request(url, params=params)
 
         # convert the response to a DataFrame
-         # this is optional, you can return the response as a json object
+        # this is optional, you can return the response as a json object
         response_df = convert_sensor_data_to_dataframe(response)
 
         return response_df
 
-
-    def get_gps_by_vehicle(self,
-        vehicle_id, start_time, end_time=None, undersampling_factor=30
+    def get_gps_by_vehicle(
+        self, vehicle_id, start_time, end_time=None, undersampling_factor=30
     ) -> pd.DataFrame:
         """
         Get the GPS data of a vehicle, note the maximum number of
@@ -218,13 +218,12 @@ class APIClient:
 
         # make the request
         response = self.api_request(url, params=params)
-        
+
         # convert the response to a DataFrame
         # this is optional, you can return the response as a json object
         response_df = convert_gps_to_dataframe(response)
 
         return response_df
-
 
     def get_sensor_info_by_id(self, sensor_id) -> dict:
         """
@@ -240,8 +239,9 @@ class APIClient:
 
         return response
 
-
-    def get_sensor_data_by_id(self, sensor_id, start_time, end_time=None) -> pd.DataFrame:
+    def get_sensor_data_by_id(
+        self, sensor_id, start_time, end_time=None
+    ) -> pd.DataFrame:
         """
         Get the statistics of a specific sensor, note the maximum number of
         records is 1000
@@ -269,7 +269,6 @@ class APIClient:
         response_df = convert_sensor_data_to_dataframe(response)
 
         return response_df
-
 
     def get_latest_sensor_data_by_id(self, sensor_id) -> dict:
         """

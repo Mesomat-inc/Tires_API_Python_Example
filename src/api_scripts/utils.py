@@ -3,6 +3,7 @@ import os
 import pandas as pd
 from dotenv import set_key
 
+
 def is_iso_8601(timestamp: str) -> bool:
     try:
         datetime.fromisoformat(timestamp)
@@ -10,9 +11,11 @@ def is_iso_8601(timestamp: str) -> bool:
     except ValueError:
         return False
 
+
 def update_dotenv_key(key, value):
     set_key(".env", key, value)
     print(f"{key} was updated")
+
 
 def convert_sensor_data_to_dataframe(json_data: dict) -> pd.DataFrame:
     """
@@ -21,6 +24,7 @@ def convert_sensor_data_to_dataframe(json_data: dict) -> pd.DataFrame:
         json_data (dict): the JSON object to convert
     """
     return pd.DataFrame(json_data)
+
 
 def convert_gps_to_dataframe(json_data: dict) -> pd.DataFrame:
     """
@@ -32,10 +36,10 @@ def convert_gps_to_dataframe(json_data: dict) -> pd.DataFrame:
     df = pd.DataFrame(json_data)
 
     # Create additional columns for latitude and long
-    df['latitude'] = df['coordinates'].apply(lambda x: x['latitude'])
-    df['longitude'] = df['coordinates'].apply(lambda x: x['longitude'])
+    df["latitude"] = df["coordinates"].apply(lambda x: x["latitude"])
+    df["longitude"] = df["coordinates"].apply(lambda x: x["longitude"])
 
     # Drop the coordinates column
-    df.drop(columns=['coordinates'], inplace=True)
+    df.drop(columns=["coordinates"], inplace=True)
 
     return df
