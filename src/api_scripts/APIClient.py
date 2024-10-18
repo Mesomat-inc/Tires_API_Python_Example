@@ -11,11 +11,12 @@ from utils import (
     convert_gps_to_dataframe,
 )
 
-load_dotenv(override=True)
+
 
 BASE_URL = os.getenv("API_BASE_URL", "https://driverapp.eastus.cloudapp.azure.com/")
 FLEET_URL = BASE_URL + "v1/fleet/"
 
+#load_dotenv(override=True)
 
 class APIClient:
 
@@ -73,12 +74,10 @@ class APIClient:
             "refresh_token": os.getenv("REFRESH_TOKEN"),
         }
 
-        try:
-            token = requests.post(url_token, params=params)
-        except Exception as e:
-            print(f"Failed to refresh token: {e}")
-            return None
-
+        
+        token = requests.post(url_token, params=params)
+        
+       
         if token:
 
             self.access_token = token.json()["access_token"]
@@ -115,6 +114,7 @@ class APIClient:
 
         # Handle other potential errors or raise if failed
         response.raise_for_status()
+        
         return response.json()
 
     def get_vehicle_list(self) -> list[dict]:
