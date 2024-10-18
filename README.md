@@ -44,14 +44,14 @@ API_BASE_URL = 'https://driverapp.eastus.cloudapp.azure.com/
 ```
 
 Access token and refresh token will automatically be added to the .env file upon first authentication.
-These variables can also be entered manually in the .env if known. If the refresh token is expired or invalid,
+These variables can also be entered manually in the `.env` if known. If the refresh token is expired or invalid,
 the user will be notified with the following error:
 
 ```bash
 requests.exceptions.HTTPError: 401 Client Error
 ```
 
-In this case, it is recommended to clear the value of both token which will force the
+In this case, it is recommended to clear the value of both token in the `.env` file which will force the
 client to authenticate and regenerate the tokens.
 
 ## Usage
