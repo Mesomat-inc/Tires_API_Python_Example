@@ -12,7 +12,6 @@ BASE_URL = os.getenv("API_BASE_URL", "https://driverapp.eastus.cloudapp.azure.co
 FLEET_URL = BASE_URL + "v1/fleet/"
 
 
-
 class APIClient:
 
     def __init__(self, email, password):
@@ -25,6 +24,10 @@ class APIClient:
             self._authenticate()
 
     def _authenticate(self):
+        '''
+        Authenticate the user using the email and password in .env file
+        '''
+
         url_token = BASE_URL + "/auth/token"
 
         
@@ -55,6 +58,10 @@ class APIClient:
         return {"token": self.access_token}
     
     def refresh_access_token(self):
+        ''' 
+        Refresh the access token using the refresh token in the .env file
+        '''
+
         url_token = BASE_URL + "/auth/refresh-token"
 
         params = {
@@ -62,8 +69,12 @@ class APIClient:
             "refresh_token": os.getenv("REFRESH_TOKEN"),
         }
 
-        token = requests.post(url_token, params=params)
-
+        try:
+            token = requests.post(url_token, params=params)
+        except Exception as e:
+            print(f"Failed to refresh token: {e}")
+            return None
+        
         if token:
 
             self.access_token = token.json()["access_token"]
@@ -74,6 +85,13 @@ class APIClient:
             }
 
     def api_request(self, endpoint, params=None):
+        '''
+        Make a request to the API endpoint, if the request fails due to an expired token,
+        the access token will be refreshed and the request will be retried.
+
+        params is optional and can be used to pass query parameters to the request
+        '''
+
         headers = self.format_header()
         
         response = requests.get(endpoint, headers=headers, params=params)
@@ -241,6 +259,7 @@ class APIClient:
         response = self.api_request(url, params=params)
 
         # convert sensor data to dataframe
+        # this is optional, you can return the response as a json object
         response_df = convert_sensor_data_to_dataframe(response)
 
         return response_df
