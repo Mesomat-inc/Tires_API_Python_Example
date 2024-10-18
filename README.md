@@ -75,12 +75,6 @@ To use this project, follow these steps:
     call one of the methods available in the APIClient class. For example:
 
     ```bash
-    # Create an instance of the APIClient
-    api_client = APIClient(
-        email=os.getenv("USER_EMAIL"),
-        password=os.getenv("PASSWORD")
-    )
-    
     # Make a request to the API
     response = api_client.get_gps_by_vehicle(153, start_time= "2024-09-10T15:30:00", end_time= "2024-09-10T15:40:00", undersampling_factor=1)
     print(response)
