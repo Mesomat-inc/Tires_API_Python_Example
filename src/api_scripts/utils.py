@@ -34,12 +34,13 @@ def convert_gps_to_dataframe(json_data: dict) -> pd.DataFrame:
     """
 
     df = pd.DataFrame(json_data)
+    
+    if not df.empty:
+        # Create additional columns for latitude and long
+        df["latitude"] = df["coordinates"].apply(lambda x: x["latitude"])
+        df["longitude"] = df["coordinates"].apply(lambda x: x["longitude"])
 
-    # Create additional columns for latitude and long
-    df["latitude"] = df["coordinates"].apply(lambda x: x["latitude"])
-    df["longitude"] = df["coordinates"].apply(lambda x: x["longitude"])
-
-    # Drop the coordinates column
-    df.drop(columns=["coordinates"], inplace=True)
+        # Drop the coordinates column
+        df.drop(columns=["coordinates"], inplace=True)
 
     return df
