@@ -1,4 +1,5 @@
 import requests
+from requests import exceptions
 import os
 import json
 import pandas as pd
@@ -92,6 +93,8 @@ class APIClient:
             return {
                 "access_token": token.json()["access_token"],
             }
+        else:
+            raise requests.exceptions.HTTPError("Failed to refresh access token")
 
     def api_request(self, endpoint, params=None):
         """
@@ -106,7 +109,11 @@ class APIClient:
         response = requests.get(endpoint, headers=headers, params=params)
         if response.status_code == 401:  # Unauthorized
             print("Token expired, refreshing...")
-            self.refresh_access_token()
+            try:
+                response = self.refresh_access_token()
+            except exceptions.HTTPError as e:
+                print('Failed to refresh token, trying to re-authenticate with email and password')
+                self._authenticate()
 
             # Retry with new token
             headers = self.format_header()
@@ -125,60 +132,61 @@ class APIClient:
         
         return response.json()
 
-    def get_vehicle_list(self) -> list[dict]:
+    def get_asset_list(self) -> list[dict]:
         """
-        Get the list of vehicles with their information
+        Get the list of assets with their information
         """
 
         # create the url for the request, refer to the API documentation for the correct endpoint
-        url = FLEET_URL + "vehicles"
+        url = FLEET_URL + "assets"
 
         # make the request
         response = self.api_request(url)
 
         return response
 
-    def get_vehicle_info(self, vehicle_id) -> dict:
+    def get_asset_info(self, gateway_id) -> dict:
         """
-        Get the information of a specific vehicle
+        Get the information of a specific asset
         Args:
-            vehicle_id (int): the id of the vehicle
+            gateway_id (int): the id of the gateway (shown on the gateway sticker)
         """
         # create the url for the request, refer to the API documentation for the correct endpoint
-        url = FLEET_URL + "vehicles/" + str(vehicle_id)
+        url = FLEET_URL + "assets/" + str(gateway_id)
 
         # make the request
         response = self.api_request(url)
 
         return response
 
-    def get_sensors_attached_to_vehicle(self, vehicle_id) -> list[dict]:
+    def get_sensors_attached_to_asset(self, gateway_id) -> list[dict]:
         """
-        Get the list of sensors attached to a vehicle
+        Get the list of sensors attached to an asset
         Args:
-            vehicle_id (int): the id of the vehicle
+            gateway_id (int): the id of the gateway (shown on the gateway sticker)
         """
         # create the url for the request, refer to the API documentation for the correct endpoint
-        url = FLEET_URL + "vehicles/" + str(vehicle_id) + "/sensors"
+        url = FLEET_URL + "assets/" + str(gateway_id) + "/sensors"
 
         # make the request
         response = self.api_request(url)
 
         return response
 
-    def get_sensor_data_by_vehicle(
-        self, vehicle_id, start_time, end_time=None
+    def get_sensor_data_by_asset(
+        self, gateway_id, start_time, end_time=None
     ) -> pd.DataFrame:
         """
-        Get the data of a all sensors attached to a vehicle, note the maximum number of
-        records returned is 1000
+        Get the data of a all sensors attached to an asset, note the maximum number of
+        records returned is capped. The maximum number of records corresponds to 1 day of data 
+        for a single sensor assuming a 1 minute sampling rate.
         Args:
-            vehicle_id (int): the id of the vehicle
+            gateway_id (int): the id of the gateway (shown on the gateway sticker)
             start_time (str): the start time of the data in ISO 8601 format YYYY-MM-DDTHH:MM:SS+HH:MM,
             end_time (str) - Optional: the end time of the data in ISO 8601 format YYYY-MM-DDTHH:MM:SS+HH:MM
         """
         # create the url for the request, refer to the API documentation for the correct endpoint
-        url = FLEET_URL + "vehicles/" + str(vehicle_id) + "/sensors/stats"
+        url = FLEET_URL + "assets/" + str(gateway_id) + "/sensors/stats"
 
         # parameters for the request
         if end_time is None and is_iso_8601(start_time):
@@ -197,20 +205,21 @@ class APIClient:
 
         return response_df
 
-    def get_gps_by_vehicle(
-        self, vehicle_id, start_time, end_time=None, undersampling_factor=30
+    def get_gps_by_asset(
+        self, gateway_id, start_time, end_time=None, undersampling_factor=30
     ) -> pd.DataFrame:
         """
-        Get the GPS data of a vehicle, note the maximum number of
-        records is 1000
+        Get the GPS data of an asset, note the maximum number of
+        records is capped. The maximum number of records corresponds to 1 day of gps data
+        assuming 1 minute sampling rate (undersampling_factor = 30).
         Args:
-            vehicle_id (int): the id of the vehicle
+            gateway_id (int): the id of the gateway (shown on the sticker)
             start_time (str): the start time of the data in ISO 8601 format YYYY-MM-DDTHH:MM:SS+HH:MM
             end_time (str) - Optional: the end time of the data in ISO 8601 format YYYY-MM-DDTHH:MM:SS+HH:MM
             undersampling_factor (int) - Optional: the factor to undersample the data, default is 30
         """
         # create the url for the request, refer to the API documentation for the correct endpoint
-        url = FLEET_URL + "vehicles/" + str(vehicle_id) + "/gps"
+        url = FLEET_URL + "assets/" + str(gateway_id) + "/gps"
 
         # parameters for the request
         if end_time is None and is_iso_8601(start_time):
@@ -252,7 +261,8 @@ class APIClient:
     ) -> pd.DataFrame:
         """
         Get the statistics of a specific sensor, note the maximum number of
-        records is 1000
+        records is is capped. The maximum number of records corresponds to 1 day of data 
+        for a single sensor assuming a 1 minute sampling rate.
         Args:
             sensor_id (int): the serial number of the sensor
             start_time (str): the start time of the data in ISO 8601 format YYYY-MM-DDTHH:MM:SS+HH:MM
