@@ -14,7 +14,7 @@ from utils import (
 
 
 
-BASE_URL = os.getenv("API_BASE_URL", "https://driverapp.eastus.cloudapp.azure.com/")
+BASE_URL = os.getenv("API_BASE_URL", "https://api.mesomat.com/")
 FLEET_URL = BASE_URL + "v1/fleet/"
 
 #load_dotenv(override=True)
@@ -22,6 +22,8 @@ FLEET_URL = BASE_URL + "v1/fleet/"
 class APIClient:
 
     def __init__(self, email, password):
+
+        print(BASE_URL)
         self.email = email
         self.password = password
         self.access_token = os.getenv("ACCESS_TOKEN", None)
