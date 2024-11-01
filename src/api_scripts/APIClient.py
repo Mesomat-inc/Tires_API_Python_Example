@@ -23,7 +23,6 @@ class APIClient:
 
     def __init__(self, email, password):
 
-        print(BASE_URL)
         self.email = email
         self.password = password
         self.access_token = os.getenv("ACCESS_TOKEN", None)
