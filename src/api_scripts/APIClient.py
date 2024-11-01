@@ -177,7 +177,7 @@ class APIClient:
         self, gateway_id, start_time, end_time=None
     ) -> pd.DataFrame:
         """
-        Get the data of a all sensors attached to an asset, note the maximum number of
+        Get the data of all sensors attached to an asset, note the maximum number of
         records returned is capped. The maximum number of records corresponds to 1 day of data 
         for a single sensor assuming a 1 minute sampling rate.
         Args:
@@ -261,7 +261,7 @@ class APIClient:
     ) -> pd.DataFrame:
         """
         Get the statistics of a specific sensor, note the maximum number of
-        records is is capped. The maximum number of records corresponds to 1 day of data 
+        records is capped. The maximum number of records corresponds to 1 day of data 
         for a single sensor assuming a 1 minute sampling rate.
         Args:
             sensor_id (int): the serial number of the sensor

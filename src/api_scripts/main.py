@@ -55,7 +55,7 @@ def main():
         end_time= end_time_str,
         undersampling_factor=30,
     )
-    print(f"Some gps data for this vehicle is: {df_gps}")
+    print(f"Some gps data for this asset is: {df_gps}")
 
 
 
