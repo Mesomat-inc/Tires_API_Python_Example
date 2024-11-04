@@ -40,7 +40,7 @@ Example `.env` file:
 ```
 USER_EMAIL = 'john.doe@domain.com'
 PASSWORD = 'my_password',
-API_BASE_URL = 'https://driverapp.eastus.cloudapp.azure.com/
+API_BASE_URL = 'https://api.mesomat.com/
 ```
 
 Access token and refresh token will automatically be added to the .env file upon first authentication.
@@ -66,7 +66,7 @@ To use this project, follow these steps:
 2. **APIClient Class**
 
     All methods to interact with the API are stored in the APIClient Class, including authnetication methods.
-    Each route documented in https://driverapp.eastus.cloudapp.azure.com/docs#/ has a corresponding method in the
+    Each route documented in https://api.mesomat.com/docs#/ has a corresponding method in the
     APIClient class.
 
 3. **Call the API Script**
@@ -76,7 +76,7 @@ To use this project, follow these steps:
 
     ```bash
     # Make a request to the API
-    response = api_client.get_gps_by_vehicle(153, start_time= "2024-09-10T15:30:00", end_time= "2024-09-10T15:40:00", undersampling_factor=1)
+    response = api_client.get_gps_by_vehicle(GATEWAY_ID, start_time= "2024-09-10T15:30:00", end_time= "2024-09-10T15:40:00", undersampling_factor=1)
     print(response)
     ```
 
